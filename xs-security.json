@@ -1,0 +1,31 @@
+{
+  "xsappname": "aldi-oa-agent",
+  "tenant-mode": "dedicated",
+  "description": "Intelligent OA Assignment Agent Security",
+  "scopes": [
+    { "name": "$XSAPPNAME.OAPlanner",  "description": "OA Planner — can view exceptions and approve recommendations" },
+    { "name": "$XSAPPNAME.OAViewer",   "description": "OA Viewer — read-only access" },
+    { "name": "$XSAPPNAME.OAAdmin",    "description": "OA Admin — full access including rule management" }
+  ],
+  "role-templates": [
+    {
+      "name": "OAPlanner",
+      "description": "OA Planner",
+      "scope-references": [ "$XSAPPNAME.OAPlanner", "$XSAPPNAME.OAViewer" ]
+    },
+    {
+      "name": "OAViewer",
+      "description": "OA Viewer (Read-Only)",
+      "scope-references": [ "$XSAPPNAME.OAViewer" ]
+    },
+    {
+      "name": "OAAdmin",
+      "description": "OA Administrator",
+      "scope-references": [ "$XSAPPNAME.OAAdmin", "$XSAPPNAME.OAPlanner", "$XSAPPNAME.OAViewer" ]
+    }
+  ],
+  "oauth2-configuration": {
+    "token-validity": 43200,
+    "redirect-uris": ["https://*.cfapps.eu12.hana.ondemand.com/**"]
+  }
+}

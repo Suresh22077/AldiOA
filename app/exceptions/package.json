@@ -1,0 +1,13 @@
+{
+  "name": "aldi-oa-exceptions",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Exception Inbox — Unassigned Articles",
+  "devDependencies": {
+    "@sap/ux-ui5-tooling": "^1",
+    "@ui5/cli": "^3"
+  },
+  "ui5": {
+    "dependencies": ["@sap/ux-ui5-tooling"]
+  }
+}

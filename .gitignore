@@ -1,0 +1,8 @@
+node_modules/
+gen/
+dist/
+*.mtar
+*.vsix
+.env
+.npmrc
+*.log

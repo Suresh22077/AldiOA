@@ -1,0 +1,179 @@
+_schema-version: "3.1"
+ID: aldi-oa-agent
+description: Intelligent OA Assignment Agent
+version: 1.0.0
+
+parameters:
+  enable-parallel-deployments: true
+  deploy_mode: html5-repo
+
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npm ci
+        - npx cds build --production
+
+modules:
+  # ── CAP Node.js backend ────────────────────────────────────────────────────
+  - name: aldi-oa-agent-srv
+    type: nodejs
+    path: gen/srv
+    parameters:
+      buildpack: nodejs_buildpack
+      readiness-health-check-type: http
+      readiness-health-check-http-endpoint: /health
+      memory: 512M
+      disk-quota: 512M
+    build-parameters:
+      builder: npm
+      ignore: [".npmrc", "node_modules/"]
+    provides:
+      - name: srv-api
+        properties:
+          srv-url: ${default-url}
+    requires:
+      - name: aldi-oa-hana
+      - name: aldi-oa-xsuaa
+      - name: aldi-oa-destination
+
+  # ── Database deployer (HDI) ────────────────────────────────────────────────
+  - name: aldi-oa-agent-db-deployer
+    type: hdb
+    path: gen/db
+    parameters:
+      buildpack: nodejs_buildpack
+      memory: 256M
+      disk-quota: 512M
+    build-parameters:
+      ignore: [".npmrc", "node_modules/"]
+    requires:
+      - name: aldi-oa-hana
+
+  # ── App Router ─────────────────────────────────────────────────────────────
+  - name: aldi-oa-agent-approuter
+    type: approuter.nodejs
+    path: app/router
+    parameters:
+      keep-existing-routes: true
+      disk-quota: 256M
+      memory: 256M
+    requires:
+      - name: srv-api
+        group: destinations
+        properties:
+          name: srv-api
+          url: ~{srv-url}
+          forwardAuthToken: true
+      - name: aldi-oa-xsuaa
+      - name: aldi-oa-html5-runtime
+      - name: aldi-oa-destination
+    properties:
+      TENANT_HOST_PATTERN: "^(.*).${default-domain}"
+
+  # ── Exceptions Fiori app deployer ──────────────────────────────────────────
+  - name: aldi-oa-exceptions-deployer
+    type: com.sap.application.content
+    path: app/exceptions
+    requires:
+      - name: aldi-oa-html5-repo
+        parameters:
+          content-target: true
+    build-parameters:
+      build-result: dist
+      builder: custom
+      commands:
+        - npm ci
+        - npx ui5 build --config ui5.yaml --dest dist --clean-dest
+      supported-platforms: []
+
+  # ── Recommendations Fiori app deployer ─────────────────────────────────────
+  - name: aldi-oa-recommendations-deployer
+    type: com.sap.application.content
+    path: app/recommendations
+    requires:
+      - name: aldi-oa-html5-repo
+        parameters:
+          content-target: true
+    build-parameters:
+      build-result: dist
+      builder: custom
+      commands:
+        - npm ci
+        - npx ui5 build --config ui5.yaml --dest dist --clean-dest
+      supported-platforms: []
+
+  # ── HTML5 content deployer (FLP) ───────────────────────────────────────────
+  - name: aldi-oa-flp-content
+    type: com.sap.application.content
+    requires:
+      - name: aldi-oa-xsuaa
+        parameters:
+          service-key:
+            name: aldi-oa-xsuaa-key
+      - name: aldi-oa-html5-repo
+        parameters:
+          service-key:
+            name: aldi-oa-html5-repo-key
+      - name: aldi-oa-destination
+        parameters:
+          content-target: true
+    parameters:
+      content:
+        subaccount:
+          service-manager:
+            service-plan: subaccount-admin
+          existing_destinations_policy: update
+          destinations:
+            - Authentication: OAuth2UserTokenExchange
+              HTML5.DynamicDestination: true
+              HTML5.ForwardAuthToken: true
+              Name: aldi-oa-agent-srv-api
+              ServiceInstanceName: aldi-oa-agent-xsuaa
+              ServiceKeyName: aldi-oa-xsuaa-key
+              URL: ~{aldi-oa-agent-srv/srv-url}
+              sap.cloud.service: aldi.oa
+    requires:
+      - name: aldi-oa-agent-srv
+
+resources:
+  # ── SAP HANA Cloud HDI container ───────────────────────────────────────────
+  - name: aldi-oa-hana
+    type: com.sap.xs.hdi-container
+    parameters:
+      service:      hana
+      service-plan: hdi-shared
+    properties:
+      hdi-service-name: ${service-name}
+
+  # ── XSUAA ──────────────────────────────────────────────────────────────────
+  - name: aldi-oa-xsuaa
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service:      xsuaa
+      service-plan: application
+      path:         ./xs-security.json
+      config:
+        xsappname: aldi-oa-agent-${org}-${space}
+        tenant-mode: dedicated
+
+  # ── Destination Service ────────────────────────────────────────────────────
+  - name: aldi-oa-destination
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service:      destination
+      service-plan: lite
+
+  # ── HTML5 Repository (host) ────────────────────────────────────────────────
+  - name: aldi-oa-html5-repo
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service:      html5-apps-repo
+      service-plan: app-host
+
+  # ── HTML5 Repository (runtime) ─────────────────────────────────────────────
+  - name: aldi-oa-html5-runtime
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service:      html5-apps-repo
+      service-plan: app-runtime
