@@ -10,8 +10,9 @@
     h1 { color: #002a86; font-size: 22px; margin-bottom: 8px; }
     p { color: #666; font-size: 14px; line-height: 1.6; }
     .links { margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap; }
-    a.btn { background: #1b90ff; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 4px; font-size: 13px; font-weight: 600; }
-    a.btn.secondary { background: #fff; color: #002a86; border: 1px solid #eaecee; }
+    .btn { background: #1b90ff; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; display: inline-block; }
+    .btn.secondary { background: #fff; color: #002a86; border: 1px solid #eaecee; }
+    #status { margin-top: 12px; font-size: 12px; color: #888; min-height: 18px; }
   </style>
 </head>
 <body>
@@ -23,10 +24,42 @@
       and generates actionable recommendations for OA Planners.
     </p>
     <div class="links">
-      <a class="btn" href="/aldi.oa.exceptions/index.html">Exception Inbox</a>
-      <a class="btn" href="/aldi.oa.recommendations/index.html">Recommendations</a>
+      <button class="btn" onclick="openApp('/aldi.oa.exceptions/index.html')">Exception Inbox</button>
+      <button class="btn" onclick="openApp('/aldi.oa.recommendations/index.html')">Recommendations</button>
       <a class="btn secondary" href="/odata/v4/oa/">OData Service</a>
     </div>
+    <div id="status"></div>
   </div>
+
+  <script>
+    // After logout (logoutPage=/index.html), resume pending navigation
+    var pending = sessionStorage.getItem('postLoginUrl');
+    if (pending) {
+      sessionStorage.removeItem('postLoginUrl');
+      window.location.href = pending;
+    }
+
+    function openApp(url) {
+      var status = document.getElementById('status');
+      status.textContent = 'Checking session…';
+      // Check OData with redirect:manual so a 302 to XSUAA login becomes status 0 (not 403)
+      fetch('/odata/v4/oa/', { credentials: 'include', redirect: 'manual' })
+        .then(function(r) {
+          if (r.status === 403) {
+            // Stale cross-zone session — clear it then resume
+            status.textContent = 'Refreshing session, please wait…';
+            sessionStorage.setItem('postLoginUrl', url);
+            window.location.href = '/do/logout';
+          } else {
+            status.textContent = '';
+            window.location.href = url;
+          }
+        })
+        .catch(function() {
+          status.textContent = '';
+          window.location.href = url;
+        });
+    }
+  </script>
 </body>
 </html>

@@ -56,7 +56,7 @@ modules:
     path: app/router
     parameters:
       keep-existing-routes: true
-      disk-quota: 256M
+      disk-quota: 512M
       memory: 256M
     requires:
       - name: srv-api
@@ -66,42 +66,7 @@ modules:
           url: ~{srv-url}
           forwardAuthToken: true
       - name: aldi-oa-xsuaa
-      - name: aldi-oa-html5-runtime
       - name: aldi-oa-destination
-    properties:
-      TENANT_HOST_PATTERN: "^(.*).${default-domain}"
-
-  # ── Exceptions Fiori app deployer ──────────────────────────────────────────
-  - name: aldi-oa-exceptions-deployer
-    type: com.sap.application.content
-    path: app/exceptions
-    requires:
-      - name: aldi-oa-html5-repo
-        parameters:
-          content-target: true
-    build-parameters:
-      build-result: dist
-      builder: custom
-      commands:
-        - npm install --ignore-scripts
-        - npx ui5 build --config ui5.yaml --dest dist --clean-dest
-      supported-platforms: []
-
-  # ── Recommendations Fiori app deployer ─────────────────────────────────────
-  - name: aldi-oa-recommendations-deployer
-    type: com.sap.application.content
-    path: app/recommendations
-    requires:
-      - name: aldi-oa-html5-repo
-        parameters:
-          content-target: true
-    build-parameters:
-      build-result: dist
-      builder: custom
-      commands:
-        - npm install --ignore-scripts
-        - npx ui5 build --config ui5.yaml --dest dist --clean-dest
-      supported-platforms: []
 
 resources:
   # ── SAP HANA Cloud HDI container ───────────────────────────────────────────

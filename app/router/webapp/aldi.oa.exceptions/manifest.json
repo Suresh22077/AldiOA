@@ -1,0 +1,77 @@
+{
+  "sap.app": {
+    "id": "aldi.oa.exceptions",
+    "type": "application",
+    "title": "Exception Inbox — Unassigned Articles",
+    "description": "Review and action unassigned articles identified by the Intelligent OA Assignment Agent",
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/oa/",
+        "type": "OData",
+        "settings": { "odataVersion": "4.0" }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "fullWidth": true
+  },
+  "sap.ui5": {
+    "dependencies": {
+      "minUI5Version": "1.120.0",
+      "libs": {
+        "sap.m":       {},
+        "sap.ui.core": {},
+        "sap.fe.templates": {}
+      }
+    },
+    "models": {
+      "": {
+        "dataSource": "mainService",
+        "settings": { "synchronizationMode": "None", "operationMode": "Server", "autoExpandSelect": true }
+      }
+    },
+    "routing": {
+      "routes": [
+        {
+          "pattern": "",
+          "name": "ExceptionsList",
+          "target": "ExceptionsList"
+        },
+        {
+          "pattern": "Exceptions({key}):?query:",
+          "name": "ExceptionsObjectPage",
+          "target": "ExceptionsObjectPage"
+        }
+      ],
+      "targets": {
+        "ExceptionsList": {
+          "type": "Component",
+          "id": "ExceptionsList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "entitySet": "Exceptions",
+              "variantManagement": "Page",
+              "initialLoad": true,
+              "navigation": {
+                "Exceptions": { "detail": { "route": "ExceptionsObjectPage" } }
+              }
+            }
+          }
+        },
+        "ExceptionsObjectPage": {
+          "type": "Component",
+          "id": "ExceptionsObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "entitySet": "Exceptions",
+              "editableHeaderContent": false
+            }
+          }
+        }
+      }
+    }
+  }
+}

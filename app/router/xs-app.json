@@ -1,30 +1,37 @@
 {
   "welcomeFile": "/index.html",
   "authenticationMethod": "route",
+  "logout": {
+    "logoutEndpoint": "/do/logout",
+    "logoutPage": "/index.html"
+  },
   "routes": [
     {
       "source": "^/odata/v4/oa/(.*)$",
       "target": "/odata/v4/oa/$1",
       "destination": "srv-api",
+      "authenticationType": "xsuaa",
       "csrfProtection": true
     },
     {
+      "source": "^/index.html$",
+      "localDir": "webapp",
+      "authenticationType": "none"
+    },
+    {
       "source": "^/aldi.oa.exceptions/(.*)$",
-      "target": "/$1",
-      "service": "html5-apps-repo-rt",
+      "localDir": "webapp",
       "authenticationType": "xsuaa"
     },
     {
       "source": "^/aldi.oa.recommendations/(.*)$",
-      "target": "/$1",
-      "service": "html5-apps-repo-rt",
+      "localDir": "webapp",
       "authenticationType": "xsuaa"
     },
     {
       "source": "^(.*)$",
-      "target": "$1",
-      "service": "html5-apps-repo-rt",
-      "authenticationType": "xsuaa"
+      "localDir": "webapp",
+      "authenticationType": "none"
     }
   ]
 }
