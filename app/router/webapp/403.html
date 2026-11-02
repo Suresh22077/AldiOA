@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Session Error</title>
+  <script>
+    var target = window.location.pathname;
+    if (target && target !== '/' && target !== '/index.html' && target !== '/403.html') {
+      sessionStorage.setItem('postLoginUrl', target);
+    }
+    window.location.replace('/do/logout');
+  </script>
+</head>
+<body>
+  <p>Session expired. Clearing &hellip; <a href="/do/logout">Click here if not redirected</a></p>
+</body>
+</html>

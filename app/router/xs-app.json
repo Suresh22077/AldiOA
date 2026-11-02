@@ -5,6 +5,9 @@
     "logoutEndpoint": "/do/logout",
     "logoutPage": "/index.html"
   },
+  "errorPage": [
+    {"status": [403], "file": "webapp/403.html"}
+  ],
   "routes": [
     {
       "source": "^/odata/v4/oa/(.*)$",
