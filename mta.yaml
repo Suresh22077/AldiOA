@@ -11,8 +11,8 @@ build-parameters:
   before-all:
     - builder: custom
       commands:
-        - npm ci
-        - npx cds build --production
+        - npm install --ignore-scripts --legacy-peer-deps
+        - cds build --production
 
 modules:
   # ── CAP Node.js backend ────────────────────────────────────────────────────
@@ -83,7 +83,7 @@ modules:
       build-result: dist
       builder: custom
       commands:
-        - npm ci
+        - npm install --ignore-scripts
         - npx ui5 build --config ui5.yaml --dest dist --clean-dest
       supported-platforms: []
 
@@ -99,13 +99,14 @@ modules:
       build-result: dist
       builder: custom
       commands:
-        - npm ci
+        - npm install --ignore-scripts
         - npx ui5 build --config ui5.yaml --dest dist --clean-dest
       supported-platforms: []
 
   # ── HTML5 content deployer (FLP) ───────────────────────────────────────────
   - name: aldi-oa-flp-content
     type: com.sap.application.content
+    path: .
     requires:
       - name: aldi-oa-xsuaa
         parameters:
@@ -118,6 +119,7 @@ modules:
       - name: aldi-oa-destination
         parameters:
           content-target: true
+      - name: aldi-oa-agent-srv
     parameters:
       content:
         subaccount:
@@ -133,8 +135,6 @@ modules:
               ServiceKeyName: aldi-oa-xsuaa-key
               URL: ~{aldi-oa-agent-srv/srv-url}
               sap.cloud.service: aldi.oa
-    requires:
-      - name: aldi-oa-agent-srv
 
 resources:
   # ── SAP HANA Cloud HDI container ───────────────────────────────────────────
