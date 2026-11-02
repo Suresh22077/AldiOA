@@ -1,0 +1,8 @@
+node_modules/
+gen/
+.AldiOA_mta_build_tmp/
+mta_archives/
+dist/
+*.mtar
+*.log
+.git/

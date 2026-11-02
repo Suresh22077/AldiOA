@@ -2,10 +2,6 @@ namespace aldi.oa;
 
 using { cuid, managed } from '@sap/cds/common';
 
-// ─────────────────────────────────────────────────────
-// Mapped to existing HANA table: OA_RULES
-// ─────────────────────────────────────────────────────
-@cds.persistence.exists
 entity OA_RULES {
   key RULE_ID          : String(20);
       DC               : String(4)    @title: 'Distribution Center';
@@ -26,10 +22,6 @@ entity OA_RULES {
       CHANGED_AT       : Timestamp;
 }
 
-// ─────────────────────────────────────────────────────
-// Mapped to existing HANA table: MATERIAL_MASTER
-// ─────────────────────────────────────────────────────
-@cds.persistence.exists
 entity MATERIAL_MASTER {
   key ARTICLE_ID       : String(18)   @title: 'Article ID';
       DC               : String(4)    @title: 'Distribution Center';
@@ -44,10 +36,6 @@ entity MATERIAL_MASTER {
       CHANGED_AT       : Timestamp;
 }
 
-// ─────────────────────────────────────────────────────
-// Mapped to existing HANA table: MATERIAL_OA_MAPPING
-// ─────────────────────────────────────────────────────
-@cds.persistence.exists
 entity MATERIAL_OA_MAPPING {
   key ARTICLE_ID       : String(18)   @title: 'Article ID';
   key DC               : String(4)    @title: 'Distribution Center';

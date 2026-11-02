@@ -103,39 +103,6 @@ modules:
         - npx ui5 build --config ui5.yaml --dest dist --clean-dest
       supported-platforms: []
 
-  # ── HTML5 content deployer (FLP) ───────────────────────────────────────────
-  - name: aldi-oa-flp-content
-    type: com.sap.application.content
-    path: .
-    requires:
-      - name: aldi-oa-xsuaa
-        parameters:
-          service-key:
-            name: aldi-oa-xsuaa-key
-      - name: aldi-oa-html5-repo
-        parameters:
-          service-key:
-            name: aldi-oa-html5-repo-key
-      - name: aldi-oa-destination
-        parameters:
-          content-target: true
-      - name: aldi-oa-agent-srv
-    parameters:
-      content:
-        subaccount:
-          service-manager:
-            service-plan: subaccount-admin
-          existing_destinations_policy: update
-          destinations:
-            - Authentication: OAuth2UserTokenExchange
-              HTML5.DynamicDestination: true
-              HTML5.ForwardAuthToken: true
-              Name: aldi-oa-agent-srv-api
-              ServiceInstanceName: aldi-oa-agent-xsuaa
-              ServiceKeyName: aldi-oa-xsuaa-key
-              URL: ~{aldi-oa-agent-srv/srv-url}
-              sap.cloud.service: aldi.oa
-
 resources:
   # ── SAP HANA Cloud HDI container ───────────────────────────────────────────
   - name: aldi-oa-hana
