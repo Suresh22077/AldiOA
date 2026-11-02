@@ -25,7 +25,10 @@
     }
   ],
   "oauth2-configuration": {
-    "token-validity": 43200,
-    "redirect-uris": ["https://*.cfapps.eu12.hana.ondemand.com/**"]
+    "token-validity": 28800,
+    "redirect-uris": [
+      "https://rfm-genai-4063-genai-aldi-oa-agent-approuter.cfapps.eu12.hana.ondemand.com/**",
+      "https://*.launchpad.cfapps.eu12.hana.ondemand.com/**"
+    ]
   }
 }

@@ -8,13 +8,18 @@ module.exports = class OAManagementService extends cds.ApplicationService {
 
     // ── Recommendation: Approve action ─────────────────
     this.on('approve', Recommendations, async (req) => {
+      if (!req.user.is('OAPlanner') && !req.user.is('OAAdmin'))
+        return req.reject(403, 'Not authorized — OAPlanner or OAAdmin role required');
+      if (!req.user.id)
+        return req.reject(401, 'User identity required to approve recommendations');
+
       const { ID } = req.params[0];
       const db = await cds.connect.to('db');
       await db.run(
         UPDATE(Recommendations)
           .set({
             STATUS:      'A',
-            APPROVED_BY: req.user?.id ?? 'system',
+            APPROVED_BY: req.user.id,
             APPROVED_AT: new Date().toISOString()
           })
           .where({ ID })
@@ -24,6 +29,11 @@ module.exports = class OAManagementService extends cds.ApplicationService {
 
     // ── Recommendation: Reject action ──────────────────
     this.on('reject', Recommendations, async (req) => {
+      if (!req.user.is('OAPlanner') && !req.user.is('OAAdmin'))
+        return req.reject(403, 'Not authorized — OAPlanner or OAAdmin role required');
+      if (!req.user.id)
+        return req.reject(401, 'User identity required to reject recommendations');
+
       const { ID } = req.params[0];
       const db = await cds.connect.to('db');
       await db.run(

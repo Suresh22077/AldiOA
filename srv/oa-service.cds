@@ -29,6 +29,10 @@ service OAManagementService @(path: '/odata/v4/oa') {
     where STATUS = 'A' or STATUS = 'C';
 
   // ── Recommendations ─────────────────────────────────
+  @(restrict: [
+    { grant: ['READ'],          to: ['OAViewer', 'OAPlanner', 'OAAdmin'] },
+    { grant: ['approve','reject'], to: ['OAPlanner', 'OAAdmin'] }
+  ])
   entity Recommendations  as projection on db.Recommendations
     actions {
       action approve() returns Recommendations;
